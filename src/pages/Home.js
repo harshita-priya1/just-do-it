@@ -9,7 +9,8 @@ export default function Home() {
   const [todos, setTodos] = useState([]);
   const [content, setContent] = useState("");
   const [endDate, setEndDate] = useState(null);
-  const [isClicked, setIsClicked] = useState(false);
+  const [isClicked, setIsClicked] = useState(0);
+  const [selectedTodo, setSelectedTodo] = useState(null);
 
   const token = localStorage.getItem("token");
   const user = JSON.parse(localStorage.getItem("user"));
@@ -107,15 +108,49 @@ export default function Home() {
       } else {
         alert("Server Error");
       }
-      setIsClicked(false);
+      setIsClicked(0);
       setEndDate(null);
       setContent("");
     } catch (error) {
       alert(error);
 
-      setIsClicked(false);
+      setIsClicked(0);
       setEndDate(null);
       setContent("");
+    }
+  };
+  const modifyTodo = async (todoId) => {
+    try {
+      let response = await fetch(`http://localhost:3000/todo/modify`, {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${token}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          content: content,
+          endDate: endDate,
+          todoId: todoId,
+        }),
+      });
+      response = await response.json();
+      console.log(response);
+      if (response.status === 200) {
+        getTodos();
+      } else {
+        alert("Server Error");
+      }
+      setIsClicked(0);
+      setEndDate(null);
+      setContent("");
+      setSelectedTodo(null);
+    } catch (error) {
+      alert(error);
+
+      setIsClicked(0);
+      setEndDate(null);
+      setContent("");
+      setSelectedTodo(null);
     }
   };
 
@@ -130,13 +165,13 @@ export default function Home() {
     //   </ul>
     // </div>
     <div className=" flex justify-center  h-screen bg-[#EFD9D1]">
-      {!isClicked ? (
+      {isClicked === 0 ? (
         <ul className="w-screen flex flex-col items-center mt-8">
           {todos
             ? todos.map((todo) => (
                 <li
                   key={todo._id}
-                  className="bg-[#DDB7AB] p-4 m-4 w-4/5 rounded-md shadow-md"
+                  className="bg-[#DDB7AB] p-4 m-4 w-4/5 rounded-md shadow-md max-w-screen-sm"
                 >
                   <div className="flex items-center justify-between">
                     <div className="flex items-center">
@@ -165,7 +200,13 @@ export default function Home() {
                     >
                       Delete
                     </button>
-                    <button className="bg-[#999B84] text-[#F4EEED] px-2 py-1 rounded-md">
+                    <button
+                      onClick={() => {
+                        setIsClicked(2);
+                        setSelectedTodo(todo._id);
+                      }}
+                      className="bg-[#999B84] text-[#F4EEED] px-2 py-1 rounded-md"
+                    >
                       Modify
                     </button>
                   </div>
@@ -174,49 +215,61 @@ export default function Home() {
             : null}
         </ul>
       ) : (
-        <div className="bg-white p-4 rounded-lg shadow-md">
-          <h2 className="text-lg font-semibold mb-4">New To-Do</h2>
+        <div className="bg-[#DDB7AB] h-1/2 self-center p-4 rounded-lg shadow-md">
+          <h2 className="text-[#F4EEED] text-center text-lg font-semibold mb-4">
+            {isClicked === 1 ? `New To-Do` : "Modify To-Do"}
+          </h2>
           <div className="mb-4">
-            <label htmlFor="content" className="block font-semibold mb-2">
-              Todo Content:
+            <label
+              htmlFor="content"
+              className=" text-[#F4EEED] block font-semibold mb-2"
+            >
+              Content:
             </label>
             <input
               type="text"
               id="todoContent"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#999B84] placeholder-[#999B84]::placeholder"
               placeholder="Enter todo content"
+              style={{ color: "#999B84" }}
             />
           </div>
           <div className="mb-4">
-            <label htmlFor="endDate" className="block font-semibold mb-2">
-              To-do Due Date:
+            <label
+              htmlFor="endDate"
+              className=" text-[#F4EEED] block font-semibold mb-2"
+            >
+              Due Date:
             </label>
             <input
               type="date"
               id="endDate"
               value={endDate}
+              placeholder="dd/mm/yyyy"
               onChange={(e) => setEndDate(e.target.value)}
-              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-blue-500"
+              className="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-[#999B84]"
+              style={{ color: "#999B84" }}
             />
           </div>
-          <div className="flex justify-end">
+          <div className="flex justify-center">
             <button
               onClick={() => {
-                createTodo();
+                console.log(content, endDate);
+                isClicked === 1 ? createTodo() : modifyTodo(selectedTodo);
               }}
-              className="bg-blue-500 text-white px-4 py-2 rounded-md mr-2"
+              className="bg-[#999B84] text-[#F4EEED] px-4 py-2 rounded-md mr-2"
             >
-              Create
+              {isClicked === 1 ? "Create" : "ModiFy"}
             </button>
             <button
               onClick={() => {
-                setIsClicked(false);
+                setIsClicked(0);
                 setEndDate(null);
                 setContent("");
               }}
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-md"
+              className="bg-[#999B84] text-[#F4EEED] font-thin px-4 py-2 rounded-md"
             >
               Cancel
             </button>
@@ -225,7 +278,7 @@ export default function Home() {
       )}
       <button
         onClick={() => {
-          setIsClicked(true);
+          setIsClicked(1);
         }}
         className="h-20 w-20 rounded-full bg-[#DDB7AB] fixed bottom-0 mb-8 right-0 mr-8 text-[#F4EEED] text-5xl"
       >
