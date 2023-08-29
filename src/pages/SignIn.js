@@ -78,7 +78,7 @@ export default function SignIn() {
           type="submit"
           className="text-xl text-[#F4EEED] bg-[#999B84] mt-8 p-4 pl-8 pr-8 self-center rounded-2xl"
         >
-          SignIn
+          Sign In
         </button>
         <div
           onClick={toSignUp}
