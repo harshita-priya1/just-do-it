@@ -52,7 +52,7 @@ export default function SignIn() {
     <div className="flex items-center justify-center h-screen bg-[#EFD9D1]">
       <div className="flex flex-col gap-4 p-8 pl-20 pr-20 rounded-3xl  bg-[#DDB7AB]">
         <label className="text-[#F4EEED]" htmlFor="email">
-          Email:
+          E-mail:
         </label>
         <input
           type="email"
