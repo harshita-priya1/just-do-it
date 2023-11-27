@@ -37,7 +37,6 @@ export default function SignUp() {
         localStorage.setItem("user", JSON.stringify(data.data.user));
         localStorage.setItem("token", data.data.token);
 
-        // Navigate to /sharito page
         navigate("/home", { replace: true });
       } else {
         console.error("Sign-up failed:", data.message);

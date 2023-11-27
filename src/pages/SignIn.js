@@ -34,8 +34,6 @@ export default function SignIn() {
         localStorage.setItem("user", JSON.stringify(data.data.user));
         localStorage.setItem("token", data.data.token);
 
-        // Navigate to /sharito page
-
         navigate("/home", { replace: true });
         // history.replace("/home");
       } else {
